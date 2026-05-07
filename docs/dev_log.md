@@ -15,3 +15,7 @@
 - Added commander portrait chips on campaign cards with faction-based color coding to improve commander uniqueness at map glance.
 - Added combat feel pass: melee strike/lunge, archer shoot animation + projectile, priest cast/heal pulse, ram slam, plus impact flashes and hit feedback.
 - Added `docs/visual_design.md` to document the visual language and performance guardrails for future iterations.
+- Ran a dark-fantasy UI polish pass focused on style (not balance): adjusted battlefield/HUD/card lighting, deeper palette, higher-contrast materials, and grittier commander portrait chips while preserving readability at small sprite size.
+- Refined unit proportions and silhouettes with subtle armor/material shading and clearer role accents so classes remain identifiable but less toy-like.
+- Tightened attack animation timing curves and motion offsets to improve impact weight without exaggerated/cartoon movement.
+- Improved combat feedback readability by upgrading hit flash treatment, impact burst gradients, and projectile treatment for punchier but restrained feel.

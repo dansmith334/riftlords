@@ -1,26 +1,29 @@
 :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
-body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #efeff8; }
+body { margin: 0; background: radial-gradient(1200px 520px at 50% -140px, #2b2236 0%, #151722 52%, #0b0d13 100%); color: #e8e8ef; }
 .app { padding: 16px; max-width: 1200px; margin: auto; }
 .map .territory-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
-.card { text-align:left; border:1px solid #383a52; background:#1f2233; color:#eee; padding:10px; border-radius:10px; }
-.card.conquered { outline:2px solid #35b27f; }
-.hud { display:flex; gap: 20px; font-weight: 700; }
-.taunt { font-style: italic; color:#c4a6ff; }
-.battlefield { position: relative; height: 340px; border:1px solid #45466d; border-radius: 12px; overflow:hidden; background: linear-gradient(#2b2333 0 55%,#45372c 55% 100%); }
+.card { text-align:left; border:1px solid #3d3e56; background:linear-gradient(180deg, #202330 0%, #171a25 100%); color:#eee; padding:10px; border-radius:10px; box-shadow: inset 0 1px 0 #ffffff10, 0 10px 20px #00000026; }
+.card.conquered { outline:2px solid #358960; }
+.hud { display:flex; gap: 20px; font-weight: 700; background:#0e1119cc; border:1px solid #3f4457; border-radius:10px; padding:8px 10px; box-shadow: inset 0 1px 0 #ffffff14; }
+.taunt { font-style: italic; color:#b79acb; text-shadow:0 1px 0 #000; }
+.battlefield { position: relative; height: 340px; border:1px solid #3f4258; border-radius: 12px; overflow:hidden; background: linear-gradient(#262131 0 52%,#3a3228 52% 62%, #282216 100%); box-shadow: inset 0 26px 70px #00000050; }
 .commander-chip { display:flex; align-items:center; gap:8px; margin:6px 0; }
-.portrait { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#fff; background:#5a4ca6; border:1px solid #fff5; }
-.faction-riftborn .portrait { background:#7f3ec7; }
-.faction-ash-legion .portrait { background:#b65346; }
-.faction-dreadclaw .portrait { background:#2f8a76; }
-.faction-moonreavers .portrait { background:#4e7ac0; }
+.portrait { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#f1eef8; border:1px solid #ffffff30; box-shadow: inset 0 -5px 8px #00000055, 0 0 0 2px #00000020; background:
+  radial-gradient(circle at 50% 30%, #ffffff26 0 28%, transparent 29%),
+  radial-gradient(circle at 50% 72%, #00000060 0 48%, transparent 70%),
+  #5a4ca6; }
+.faction-riftborn .portrait { background-color:#5f2f97; }
+.faction-ash-legion .portrait { background-color:#844337; }
+.faction-dreadclaw .portrait { background-color:#1f6357; }
+.faction-moonreavers .portrait { background-color:#35558f; }
 
-.unit { position:absolute; top: 228px; width:28px; height:28px; transform:translateX(-50%); }
+.unit { position:absolute; top: 228px; width:28px; height:28px; transform:translateX(-50%); filter: drop-shadow(0 2px 2px #0009); }
 .unit.enemy { top: 253px; transform:translateX(-50%) scaleX(-1); }
 .unit > span { position:absolute; display:block; }
-.unit .body { left:7px; top:11px; width:12px; height:12px; background:var(--unit-color); border-radius:4px; border:1px solid #0008; }
-.unit .head { left:9px; top:4px; width:9px; height:8px; background:#e9d8c2; border-radius:40% 40% 35% 35%; border:1px solid #0007; }
-.unit .weapon { left:17px; top:12px; width:9px; height:2px; background:#c8c9d2; transform-origin:left center; }
-.unit .accent { left:5px; top:13px; width:4px; height:8px; background:#534740; border-radius:2px; }
+.unit .body { left:6px; top:11px; width:13px; height:12px; background:linear-gradient(180deg, color-mix(in srgb, var(--unit-color) 85%, #d0d0d0 15%) 0%, color-mix(in srgb, var(--unit-color) 82%, #000 18%) 100%); border-radius:4px; border:1px solid #0009; }
+.unit .head { left:9px; top:4px; width:9px; height:8px; background:#cab9a5; border-radius:40% 40% 35% 35%; border:1px solid #0008; }
+.unit .weapon { left:18px; top:12px; width:8px; height:2px; background:#a9adb8; transform-origin:left center; }
+.unit .accent { left:4px; top:13px; width:5px; height:8px; background:#463f3a; border-radius:2px; }
 
 .unit.spearman .weapon { width:14px; top:11px; background:#9fb8c8; }
 .unit.spearman .weapon::after { content:''; position:absolute; right:-2px; top:-2px; border-left:4px solid #d8e9f2; border-top:3px solid transparent; border-bottom:3px solid transparent; }
@@ -28,7 +31,7 @@ body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #e
 .unit.knight .body { background:#a4aeb8; width:13px; }
 .unit.knight .head { background:#b8c2cc; border-radius:45% 45% 20% 20%; }
 .unit.knight .accent { width:6px; height:10px; background:#707f8f; left:2px; top:11px; border-radius:2px; }
-.unit.priest .body { background:#efe9ff; }
+.unit.priest .body { background:linear-gradient(180deg,#d4cbdf,#afa8bc); }
 .unit.priest .head { background:#e6d8c7; }
 .unit.priest .weapon { width:2px; height:12px; left:20px; top:6px; background:#cdbb88; }
 .unit.priest .weapon::after { content:''; position:absolute; top:-4px; left:-3px; width:8px; height:8px; border-radius:50%; background:#b4f5d2; }
@@ -38,15 +41,15 @@ body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #e
 .unit.ram .weapon { left:24px; top:10px; width:8px; height:6px; background:#4b372d; border-radius:0 3px 3px 0; }
 .unit.ram .accent { left:3px; top:18px; width:24px; height:2px; background:#31363f; box-shadow:0 -11px 0 #31363f; }
 
-.anim-strike { animation: strike 160ms ease-out; }
-.anim-shoot { animation: shoot 180ms ease-out; }
+.anim-strike { animation: strike 150ms cubic-bezier(.2,.84,.2,1); }
+.anim-shoot { animation: shoot 160ms cubic-bezier(.16,.75,.2,1); }
 .anim-cast { animation: cast 220ms ease-out; }
-.anim-slam { animation: slam 180ms ease-out; }
-.unit.hit { filter: brightness(1.5); }
-@keyframes strike { 0% { transform:translateX(-50%);} 45% { transform:translateX(-42%);} 100% { transform:translateX(-50%);} }
-@keyframes shoot { 0% { transform:translateX(-50%);} 40% { transform:translateX(-46%) translateY(-1px);} 100% { transform:translateX(-50%);} }
-@keyframes cast { 0% { transform:translateX(-50%);} 50% { transform:translateX(-50%) translateY(-3px);} 100% { transform:translateX(-50%);} }
-@keyframes slam { 0% { transform:translateX(-50%);} 35% { transform:translateX(-38%);} 100% { transform:translateX(-50%);} }
+.anim-slam { animation: slam 170ms cubic-bezier(.18,.86,.2,1); }
+.unit.hit { filter: brightness(1.7) saturate(1.1) drop-shadow(0 0 5px #ffba8a88); }
+@keyframes strike { 0% { transform:translateX(-50%);} 40% { transform:translateX(-39%) translateY(-1px);} 100% { transform:translateX(-50%);} }
+@keyframes shoot { 0% { transform:translateX(-50%);} 40% { transform:translateX(-45%) translateY(-2px);} 100% { transform:translateX(-50%);} }
+@keyframes cast { 0% { transform:translateX(-50%);} 50% { transform:translateX(-50%) translateY(-4px);} 100% { transform:translateX(-50%);} }
+@keyframes slam { 0% { transform:translateX(-50%);} 35% { transform:translateX(-36%) translateY(1px);} 100% { transform:translateX(-50%);} }
 .unit.enemy.anim-strike { animation-name: strikeEnemy; }
 .unit.enemy.anim-shoot { animation-name: shootEnemy; }
 .unit.enemy.anim-cast { animation-name: castEnemy; }
@@ -56,9 +59,9 @@ body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #e
 @keyframes castEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 50% { transform:translateX(-50%) translateY(-3px) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
 @keyframes slamEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 35% { transform:translateX(-62%) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
 
-.projectile { position:absolute; width:8px; height:2px; transform:translateX(-50%); background:#f3e7b3; box-shadow:0 0 6px #fff8; }
+.projectile { position:absolute; width:8px; height:2px; transform:translateX(-50%); background:#d7c089; box-shadow:0 0 4px #f8ddb366; }
 .impact { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; }
-.impact.hit { background:radial-gradient(circle,#ffd19b 0,#ff8d6e 55%,transparent 70%); }
+.impact.hit { background:radial-gradient(circle,#ffe0bb 0,#ff9c78 40%,#8f2d22 65%,transparent 76%); box-shadow:0 0 10px #ff9b7890; }
 .impact.heal { background:radial-gradient(circle,#c8ffe1 0,#62d89f 55%,transparent 70%); }
 .base { position:absolute; width:40px; height:120px; bottom:70px; border:2px solid #222; background:#666; }
 .player-base { left: 12px; }
@@ -67,6 +70,6 @@ body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #e
 .float { position:absolute; color:#ff8989; font-weight:700; transform:translateX(-50%); text-shadow:0 1px 3px #000; }
 .float.heal { color:#85f7c1; }
 .spawn-grid { margin-top: 12px; display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
-button { border:none; background:#2f3d5e; color:#fff; padding:9px; border-radius:8px; cursor:pointer; }
-button:hover { background:#3d4e7a; }
-.result { margin-top: 14px; padding: 12px; background: #24253c; border-radius: 10px; }
+button { border:1px solid #48506a; background:linear-gradient(180deg,#313f5d,#25324a); color:#f0f2f8; padding:9px; border-radius:8px; cursor:pointer; box-shadow: inset 0 1px 0 #ffffff1f; }
+button:hover { background:linear-gradient(180deg,#3c4e73,#2d3f5e); }
+.result { margin-top: 14px; padding: 12px; background: linear-gradient(180deg,#23283a,#1b1f2f); border-radius: 10px; border:1px solid #434a61; }
