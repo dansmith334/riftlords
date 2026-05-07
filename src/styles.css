@@ -1,0 +1,21 @@
+:root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+body { margin: 0; background: linear-gradient(180deg,#1a1625,#0f1017); color: #efeff8; }
+.app { padding: 16px; max-width: 1200px; margin: auto; }
+.map .territory-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
+.card { text-align:left; border:1px solid #383a52; background:#1f2233; color:#eee; padding:10px; border-radius:10px; }
+.card.conquered { outline:2px solid #35b27f; }
+.hud { display:flex; gap: 20px; font-weight: 700; }
+.taunt { font-style: italic; color:#c4a6ff; }
+.battlefield { position: relative; height: 340px; border:1px solid #45466d; border-radius: 12px; overflow:hidden; background: linear-gradient(#2b2333 0 55%,#45372c 55% 100%); }
+.unit { position:absolute; top: 230px; width:20px; height:20px; border-radius:4px; transform:translateX(-50%); border:1px solid #0008; }
+.unit.enemy { top: 255px; }
+.base { position:absolute; width:40px; height:120px; bottom:70px; border:2px solid #222; background:#666; }
+.player-base { left: 12px; }
+.enemy-base { right: 12px; }
+.base > div { height:8px; background:#4fe085; }
+.float { position:absolute; color:#ff8989; font-weight:700; transform:translateX(-50%); text-shadow:0 1px 3px #000; }
+.float.heal { color:#85f7c1; }
+.spawn-grid { margin-top: 12px; display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+button { border:none; background:#2f3d5e; color:#fff; padding:9px; border-radius:8px; cursor:pointer; }
+button:hover { background:#3d4e7a; }
+.result { margin-top: 14px; padding: 12px; background: #24253c; border-radius: 10px; }
