@@ -8,6 +8,7 @@ const BASE_HP = 1200
 const TICK_MS = 100
 const TICK = TICK_MS / 1000
 const MAX_BATTLE_SECONDS = 8 * 60
+const BASE_STOP_BUFFER = 30
 
 const unitDefs = {
   militia: { cost: 60, hp: 100, dmg: 12, range: 28, speed: 56, rate: 0.8 },
@@ -16,6 +17,11 @@ const unitDefs = {
   knight: { cost: 220, hp: 220, dmg: 27, range: 30, speed: 72, rate: 0.9 },
   priest: { cost: 170, hp: 100, dmg: -18, range: 120, speed: 40, rate: 1.1 },
   ram: { cost: 280, hp: 360, dmg: 48, range: 35, speed: 28, rate: 1.4, baseBonus: 2.3 },
+}
+const heroDefs = {
+  warrior: { hp: 300, dmg: 22, range: 34, speed: 52, rate: 0.95, cooldown: 26 },
+  ranger: { hp: 240, dmg: 18, range: 170, speed: 56, rate: 1.15, cooldown: 24 },
+  paladin: { hp: 280, dmg: 16, range: 40, speed: 50, rate: 1.05, cooldown: 28 },
 }
 
 const defaultTerritories = [
@@ -50,6 +56,8 @@ function makeBattle(difficulty, incomeMult = 1, isLearningBattle = false) {
     enemySpawns: 0,
     firstEnemySpawnTime: null,
     lastMeaningfulEventTime: 0,
+    playerHeroClass: 'warrior',
+    enemyHeroClass: Math.random() < 0.5 ? 'warrior' : ['warrior', 'ranger', 'paladin'][Math.floor(Math.random() * 3)],
   }
 }
 
@@ -59,7 +67,7 @@ function spawn(state, type, side) {
   const def = unitDefs[type]
   if (!def) return false
   if (side === 'player' && state.gold < def.cost) return false
-  state.units.push({ id: uid(), type, side, hp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0 })
+  state.units.push({ id: uid(), type, side, kind: 'unit', hp: def.hp, maxHp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0 })
   if (side === 'player') {
     state.gold -= def.cost
     state.playerSpawns += 1
@@ -93,6 +101,8 @@ function choosePlayerSpawn(state) {
 
 function step(state, difficulty) {
   state.t += TICK
+  if (!state.units.some((u) => u.kind === 'hero' && u.side === 'player')) state.units.push({ id: uid(), kind: 'hero', class: state.playerHeroClass, side: 'player', hp: heroDefs[state.playerHeroClass].hp, maxHp: heroDefs[state.playerHeroClass].hp, x: 130, cd: 0, heroCd: 4 })
+  if (!state.units.some((u) => u.kind === 'hero' && u.side === 'enemy')) state.units.push({ id: uid(), kind: 'hero', class: state.enemyHeroClass, side: 'enemy', hp: heroDefs[state.enemyHeroClass].hp, maxHp: heroDefs[state.enemyHeroClass].hp, x: FIELD_WIDTH-130, cd: 0, heroCd: 5.5 })
   state.gold += state.income * TICK
 
   // Player auto-spawn cadence.
@@ -131,15 +141,22 @@ function step(state, difficulty) {
   }
 
   for (const u of state.units) {
-    const def = unitDefs[u.type]
+    const def = u.kind === 'hero' ? heroDefs[u.class] : unitDefs[u.type]
     u.cd -= TICK
     const enemies = state.units.filter((x) => x.side !== u.side)
     const allies = state.units.filter((x) => x.side === u.side && x.id !== u.id)
     const near = enemies.find((e) => Math.abs(e.x - u.x) <= def.range)
-    const ally = allies.find((a) => Math.abs(a.x - u.x) <= def.range && a.hp < unitDefs[a.type].hp)
+    const ally = allies.find((a) => Math.abs(a.x - u.x) <= def.range && a.hp < a.maxHp)
+    const enemyBaseX = u.side === 'player' ? FIELD_WIDTH - 40 : 40
+    const attackDir = u.side === 'player' ? 1 : -1
+    const stopX = enemyBaseX - attackDir * (def.range + BASE_STOP_BUFFER)
+    const atBase = u.side === 'player' ? u.x >= stopX : u.x <= stopX
+    if (u.side === 'player') u.x = Math.min(u.x, stopX)
+    else u.x = Math.max(u.x, stopX)
+    if (u.kind === 'hero') u.heroCd -= TICK
 
     if (u.type === 'priest' && ally && u.cd <= 0) {
-      ally.hp = Math.min(unitDefs[ally.type].hp, ally.hp + Math.abs(def.dmg))
+      ally.hp = Math.min(ally.maxHp, ally.hp + Math.abs(def.dmg))
       u.cd = def.rate
       state.lastMeaningfulEventTime = state.t
     } else if (near && u.cd <= 0) {
@@ -148,12 +165,11 @@ function step(state, difficulty) {
       near.hp -= Math.max(1, dmg)
       u.cd = def.rate
       state.lastMeaningfulEventTime = state.t
-    } else if (!near) {
+    } else if (!near && !atBase) {
       u.x += (u.side === 'player' ? 1 : -1) * def.speed * TICK
     }
 
-    const enemyBaseX = u.side === 'player' ? FIELD_WIDTH - 40 : 40
-    if (Math.abs(u.x - enemyBaseX) < def.range && u.cd <= 0) {
+    if (atBase && u.cd <= 0 && !near) {
       const baseDmg = Math.max(4, def.dmg * (def.baseBonus || 1))
       if (u.side === 'player') state.enemyBase -= baseDmg
       else state.playerBase -= baseDmg
