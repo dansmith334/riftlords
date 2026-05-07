@@ -46,3 +46,8 @@
 - Units now stop at enemy base assault range and repeatedly attack it instead of passing through.
 - Base assault is interrupted by nearby enemy blockers, so lane fights can peel attackers off the gate.
 - Siege Ram remains the strongest base breaker through its base-damage multiplier.
+
+## Player hero command controls (new)
+- In battle, the player hero now has manual **Forward / Hold / Retreat** command buttons.
+- Selected command persists until changed and is visually highlighted.
+- Commands only affect the player hero movement logic; the enemy hero remains AI-driven.
