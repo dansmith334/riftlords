@@ -1,75 +1,101 @@
 :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
-body { margin: 0; background: radial-gradient(1200px 520px at 50% -140px, #2b2236 0%, #151722 52%, #0b0d13 100%); color: #e8e8ef; }
+body { margin: 0; background: radial-gradient(1300px 620px at 50% -160px, #37263e 0%, #15141f 46%, #080a10 100%); color: #e8e8ef; }
 .app { padding: 16px; max-width: 1200px; margin: auto; }
 .map .territory-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
-.card { text-align:left; border:1px solid #3d3e56; background:linear-gradient(180deg, #202330 0%, #171a25 100%); color:#eee; padding:10px; border-radius:10px; box-shadow: inset 0 1px 0 #ffffff10, 0 10px 20px #00000026; }
+.card { text-align:left; border:1px solid #4d4963; background:linear-gradient(180deg, #221f30 0%, #13141f 100%); color:#eee; padding:10px; border-radius:10px; box-shadow: inset 0 1px 0 #ffffff10, 0 10px 20px #00000026; }
 .card.conquered { outline:2px solid #358960; }
-.hud { display:flex; gap: 20px; font-weight: 700; background:#0e1119cc; border:1px solid #3f4457; border-radius:10px; padding:8px 10px; box-shadow: inset 0 1px 0 #ffffff14; }
-.taunt { font-style: italic; color:#b79acb; text-shadow:0 1px 0 #000; }
-.battlefield { position: relative; height: 340px; border:1px solid #3f4258; border-radius: 12px; overflow:hidden; background: linear-gradient(#262131 0 52%,#3a3228 52% 62%, #282216 100%); box-shadow: inset 0 26px 70px #00000050; }
-.commander-chip { display:flex; align-items:center; gap:8px; margin:6px 0; }
-.portrait { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-weight:700; color:#f1eef8; border:1px solid #ffffff30; box-shadow: inset 0 -5px 8px #00000055, 0 0 0 2px #00000020; background:
-  radial-gradient(circle at 50% 30%, #ffffff26 0 28%, transparent 29%),
-  radial-gradient(circle at 50% 72%, #00000060 0 48%, transparent 70%),
-  #5a4ca6; }
-.faction-riftborn .portrait { background-color:#5f2f97; }
-.faction-ash-legion .portrait { background-color:#844337; }
-.faction-dreadclaw .portrait { background-color:#1f6357; }
-.faction-moonreavers .portrait { background-color:#35558f; }
+.hud { display:flex; gap: 20px; font-weight: 700; background:#090d15df; border:1px solid #5b506a; border-radius:10px; padding:8px 10px; }
+.taunt { font-style: italic; color:#c6a7dc; text-shadow:0 1px 0 #000; }
+.battlefield { position: relative; height: 360px; border:1px solid #4f465f; border-radius: 12px; overflow:hidden;
+  background:
+  radial-gradient(700px 200px at 50% 62%, #6e4f2b40 0%, transparent 68%),
+  repeating-linear-gradient(90deg, transparent 0 38px, #ffffff05 38px 40px),
+  linear-gradient(180deg, #19192a 0 40%, #222034 40% 58%, #382f2a 58% 62%, #231f1f 62% 74%, #151217 74% 100%);
+  box-shadow: inset 0 26px 70px #00000090; }
+.battlefield::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 70% 30%, #8f3f7540, transparent 38%), radial-gradient(circle at 20% 20%, #3c5f9140, transparent 34%); pointer-events:none; }
+.commander-chip { display:flex; align-items:center; gap:8px; margin:6px 0; border:1px solid #ffffff1f; padding:4px; border-radius:8px; background:#0d1018; }
+.portrait { width:34px; height:34px; border-radius:6px; display:grid; place-items:center; font-weight:800; color:#f1eef8; border:1px solid #ffffff47; box-shadow: inset 0 -8px 14px #000000aa; background:#5a4ca6; }
+.faction-riftborn .portrait { box-shadow: inset 0 -8px 14px #000, 0 0 0 2px #8738cb66; }
+.faction-ash-legion .portrait { box-shadow: inset 0 -8px 14px #000, 0 0 0 2px #b4573d66; }
+.faction-dreadclaw .portrait { box-shadow: inset 0 -8px 14px #000, 0 0 0 2px #2fa18f66; }
+.faction-moonreavers .portrait { box-shadow: inset 0 -8px 14px #000, 0 0 0 2px #4a7cc866; }
 
-.unit { position:absolute; top: 228px; width:28px; height:28px; transform:translateX(-50%); filter: drop-shadow(0 2px 2px #0009); }
-.unit.enemy { top: 253px; transform:translateX(-50%) scaleX(-1); }
+.unit { position:absolute; top: 214px; width:42px; height:42px; transform:translateX(-50%); filter: drop-shadow(0 5px 5px #000b); }
+.unit.enemy { top: 250px; transform:translateX(-50%) scaleX(-1); }
 .unit > span { position:absolute; display:block; }
-.unit .body { left:6px; top:11px; width:13px; height:12px; background:linear-gradient(180deg, color-mix(in srgb, var(--unit-color) 85%, #d0d0d0 15%) 0%, color-mix(in srgb, var(--unit-color) 82%, #000 18%) 100%); border-radius:4px; border:1px solid #0009; }
-.unit .head { left:9px; top:4px; width:9px; height:8px; background:#cab9a5; border-radius:40% 40% 35% 35%; border:1px solid #0008; }
-.unit .weapon { left:18px; top:12px; width:8px; height:2px; background:#a9adb8; transform-origin:left center; }
-.unit .accent { left:4px; top:13px; width:5px; height:8px; background:#463f3a; border-radius:2px; }
+.unit .shadow { width:28px; height:8px; left:7px; bottom:0; background:#0008; border-radius:50%; }
+.unit .body { left:13px; top:15px; width:14px; height:16px; border-radius:3px; border:1px solid #000b; background:linear-gradient(#7f7770,#443d38); }
+.unit .head { left:15px; top:8px; width:11px; height:9px; border-radius:45% 45% 35% 35%; border:1px solid #0008; background:#d7c5b6; }
+.unit .helmet,.unit .shield,.unit .weapon-swing,.unit .sigil,.unit .wheel,.unit .ram-head,.unit .cape{display:none}
+.unit .weapon { left:25px; top:18px; width:9px; height:3px; background:#aaaebf; }
 
-.unit.spearman .weapon { width:14px; top:11px; background:#9fb8c8; }
-.unit.spearman .weapon::after { content:''; position:absolute; right:-2px; top:-2px; border-left:4px solid #d8e9f2; border-top:3px solid transparent; border-bottom:3px solid transparent; }
-.unit.archer .weapon { width:8px; height:10px; border:2px solid #c08a4f; border-left:none; border-radius:0 10px 10px 0; background:transparent; top:8px; left:16px; }
-.unit.knight .body { background:#a4aeb8; width:13px; }
-.unit.knight .head { background:#b8c2cc; border-radius:45% 45% 20% 20%; }
-.unit.knight .accent { width:6px; height:10px; background:#707f8f; left:2px; top:11px; border-radius:2px; }
-.unit.priest .body { background:linear-gradient(180deg,#d4cbdf,#afa8bc); }
-.unit.priest .head { background:#e6d8c7; }
-.unit.priest .weapon { width:2px; height:12px; left:20px; top:6px; background:#cdbb88; }
-.unit.priest .weapon::after { content:''; position:absolute; top:-4px; left:-3px; width:8px; height:8px; border-radius:50%; background:#b4f5d2; }
-.unit.ram { width:34px; height:22px; top:238px; }
-.unit.ram .body { left:2px; top:8px; width:24px; height:10px; background:#7d5944; border-radius:3px; }
-.unit.ram .head { display:none; }
-.unit.ram .weapon { left:24px; top:10px; width:8px; height:6px; background:#4b372d; border-radius:0 3px 3px 0; }
-.unit.ram .accent { left:3px; top:18px; width:24px; height:2px; background:#31363f; box-shadow:0 -11px 0 #31363f; }
+.unit.militia .body { background:linear-gradient(#6f7f67,#3b4738); }
+.unit.militia .shield { display:block; left:8px; top:17px; width:6px; height:10px; background:#6d5946; border:1px solid #0008; border-radius:2px; }
+.unit.militia .weapon { background:#7f7c74; width:7px; }
 
-.anim-strike { animation: strike 150ms cubic-bezier(.2,.84,.2,1); }
-.anim-shoot { animation: shoot 160ms cubic-bezier(.16,.75,.2,1); }
+.unit.spearman .weapon { width:18px; top:17px; background:#939daf; }
+.unit.spearman .weapon::after { content:''; position:absolute; right:-4px; top:-2px; border-left:5px solid #e3ebf5; border-top:3px solid transparent; border-bottom:3px solid transparent; }
+.unit.spearman .body { background:linear-gradient(#597083,#2f3f4f); }
+
+.unit.archer .weapon { width:9px; height:13px; border:2px solid #c08a4f; border-left:none; border-radius:0 10px 10px 0; background:transparent; top:11px; }
+.unit.archer .cape { display:block; left:10px; top:14px; width:7px; height:14px; background:linear-gradient(#775f8d,#332840); }
+
+.unit.knight { width:46px; height:46px; }
+.unit.knight .helmet { display:block; left:14px; top:7px; width:14px; height:9px; background:#96a4b4; border:1px solid #000a; border-radius:45% 45% 25% 25%; }
+.unit.knight .head { background:#b8c2cc; left:16px; }
+.unit.knight .body { left:12px; width:18px; height:20px; background:linear-gradient(#778696,#3b4652); }
+.unit.knight .shield { display:block; left:6px; top:15px; width:8px; height:13px; border-radius:3px; background:#5a6376; border:1px solid #0009; }
+.unit.knight .weapon { width:11px; background:#c9ced8; }
+
+.unit.priest .body { background:linear-gradient(#ddd6e4,#8e8898); border-radius:4px 4px 8px 8px; }
+.unit.priest .weapon { width:3px; height:16px; left:27px; top:8px; background:#c8b587; }
+.unit.priest .sigil { display:block; left:23px; top:4px; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle,#cbffe8 10%, #6ad8a8 50%, transparent 72%); }
+
+.unit.ram { width:54px; height:32px; top:228px; }
+.unit.ram .head,.unit.ram .helmet,.unit.ram .shield,.unit.ram .cape,.unit.ram .sigil { display:none; }
+.unit.ram .body { display:block; left:6px; top:8px; width:34px; height:13px; border-radius:4px; background:linear-gradient(#7a563b,#463124); border:1px solid #000a; }
+.unit.ram .weapon { left:38px; top:11px; width:11px; height:7px; background:#3a2a21; border-radius:0 4px 4px 0; }
+.unit.ram .ram-head { display:block; left:47px; top:9px; width:6px; height:9px; background:#7f818d; clip-path:polygon(0 0,100% 50%,0 100%); }
+.unit.ram .wheel { display:block; width:9px; height:9px; border-radius:50%; background:#23252c; border:2px solid #626777; top:20px; }
+.unit.ram .wheel-a { left:11px; }
+.unit.ram .wheel-b { left:29px; }
+
+.anim-strike .weapon-swing,.anim-slam .weapon-swing { display:block; left:26px; top:10px; width:14px; height:14px; border-right:2px solid #ffffff80; border-top:2px solid #ffc18b77; border-radius:50%; }
+.anim-cast .sigil { filter: drop-shadow(0 0 8px #75ffd4); transform:scale(1.3); }
+.unit.hit { filter: brightness(1.8) saturate(1.2) drop-shadow(0 0 7px #ff9f6ea8); }
+.unit.dead { opacity:0.45; transform:translateX(-50%) translateY(7px) scale(0.86); filter: grayscale(1) brightness(.65); }
+.unit.enemy.dead { transform:translateX(-50%) translateY(7px) scale(0.86) scaleX(-1); }
+
+.anim-strike { animation: strike 170ms cubic-bezier(.2,.84,.2,1); }
+.anim-shoot { animation: shoot 180ms cubic-bezier(.16,.75,.2,1); }
 .anim-cast { animation: cast 220ms ease-out; }
-.anim-slam { animation: slam 170ms cubic-bezier(.18,.86,.2,1); }
-.unit.hit { filter: brightness(1.7) saturate(1.1) drop-shadow(0 0 5px #ffba8a88); }
-@keyframes strike { 0% { transform:translateX(-50%);} 40% { transform:translateX(-39%) translateY(-1px);} 100% { transform:translateX(-50%);} }
-@keyframes shoot { 0% { transform:translateX(-50%);} 40% { transform:translateX(-45%) translateY(-2px);} 100% { transform:translateX(-50%);} }
-@keyframes cast { 0% { transform:translateX(-50%);} 50% { transform:translateX(-50%) translateY(-4px);} 100% { transform:translateX(-50%);} }
-@keyframes slam { 0% { transform:translateX(-50%);} 35% { transform:translateX(-36%) translateY(1px);} 100% { transform:translateX(-50%);} }
+.anim-slam { animation: slam 190ms cubic-bezier(.18,.86,.2,1); }
+@keyframes strike { 40% { transform:translateX(-35%) translateY(-2px);} }
+@keyframes shoot { 40% { transform:translateX(-43%) translateY(-3px);} }
+@keyframes cast { 50% { transform:translateX(-50%) translateY(-6px);} }
+@keyframes slam { 35% { transform:translateX(-28%) translateY(2px);} }
 .unit.enemy.anim-strike { animation-name: strikeEnemy; }
 .unit.enemy.anim-shoot { animation-name: shootEnemy; }
 .unit.enemy.anim-cast { animation-name: castEnemy; }
 .unit.enemy.anim-slam { animation-name: slamEnemy; }
-@keyframes strikeEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 45% { transform:translateX(-58%) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
-@keyframes shootEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 40% { transform:translateX(-54%) translateY(-1px) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
-@keyframes castEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 50% { transform:translateX(-50%) translateY(-3px) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
-@keyframes slamEnemy { 0% { transform:translateX(-50%) scaleX(-1);} 35% { transform:translateX(-62%) scaleX(-1);} 100% { transform:translateX(-50%) scaleX(-1);} }
+@keyframes strikeEnemy { 45% { transform:translateX(-62%) scaleX(-1);} }
+@keyframes shootEnemy { 40% { transform:translateX(-58%) translateY(-2px) scaleX(-1);} }
+@keyframes castEnemy { 50% { transform:translateX(-50%) translateY(-5px) scaleX(-1);} }
+@keyframes slamEnemy { 35% { transform:translateX(-70%) scaleX(-1);} }
 
-.projectile { position:absolute; width:8px; height:2px; transform:translateX(-50%); background:#d7c089; box-shadow:0 0 4px #f8ddb366; }
-.impact { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; }
-.impact.hit { background:radial-gradient(circle,#ffe0bb 0,#ff9c78 40%,#8f2d22 65%,transparent 76%); box-shadow:0 0 10px #ff9b7890; }
-.impact.heal { background:radial-gradient(circle,#c8ffe1 0,#62d89f 55%,transparent 70%); }
-.base { position:absolute; width:40px; height:120px; bottom:70px; border:2px solid #222; background:#666; }
-.player-base { left: 12px; }
-.enemy-base { right: 12px; }
-.base > div { height:8px; background:#4fe085; }
+.projectile { position:absolute; width:13px; height:3px; transform:translateX(-50%) rotate(-8deg); background:linear-gradient(90deg,#f7e1a8,#ab8760); box-shadow:0 0 8px #f8ddb399; }
+.projectile::after { content:''; position:absolute; right:-2px; top:-2px; border-left:4px solid #efe6db; border-top:3px solid transparent; border-bottom:3px solid transparent; }
+.impact { position:absolute; width:24px; height:24px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; }
+.impact.hit { background:radial-gradient(circle,#ffe0bb 0,#ff9c78 38%,#8f2d22 67%,transparent 78%); box-shadow:0 0 16px #ff9b7890; }
+.impact.heal { background:radial-gradient(circle,#c8ffe1 0,#62d89f 52%,transparent 72%); box-shadow:0 0 14px #62d89f88; }
+.base { position:absolute; width:52px; height:142px; bottom:66px; border:2px solid #252734; background:linear-gradient(#696273,#343642); box-shadow:inset 0 0 20px #0008; }
+.player-base { left: 10px; }
+.enemy-base { right: 10px; }
+.base::before { content:''; position:absolute; width:44px; height:18px; top:-12px; left:2px; background:#4a4454; border:2px solid #262531; }
+.base > div { height:9px; background:linear-gradient(90deg,#68ffb1,#3cc27c); box-shadow:0 0 8px #46d690; }
 .float { position:absolute; color:#ff8989; font-weight:700; transform:translateX(-50%); text-shadow:0 1px 3px #000; }
 .float.heal { color:#85f7c1; }
 .spawn-grid { margin-top: 12px; display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
-button { border:1px solid #48506a; background:linear-gradient(180deg,#313f5d,#25324a); color:#f0f2f8; padding:9px; border-radius:8px; cursor:pointer; box-shadow: inset 0 1px 0 #ffffff1f; }
+button { border:1px solid #48506a; background:linear-gradient(180deg,#313f5d,#25324a); color:#f0f2f8; padding:9px; border-radius:8px; cursor:pointer; }
 button:hover { background:linear-gradient(180deg,#3c4e73,#2d3f5e); }
 .result { margin-top: 14px; padding: 12px; background: linear-gradient(180deg,#23283a,#1b1f2f); border-radius: 10px; border:1px solid #434a61; }

@@ -155,7 +155,7 @@ function makeBattle(territory, upgrades) {
     t: 0, gold: 240, income: 28 * upgrades.incomeMult,
     enemyGold: 205 + territory.difficulty * 35 + (isLearningBattle ? 20 : 0), enemyIncome: 24 + territory.difficulty * 2, nextEnemySpawn: isLearningBattle ? 2.4 : 2.8,
     playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
-    units: [], floats: [], projectiles: [], impacts: [], result: 'ongoing',
+    units: [], fallen: [], floats: [], projectiles: [], impacts: [], result: 'ongoing',
     commanderLine: `${territory.commander.name} ${territory.commander.title}: "${taunt(territory.commander)}"`,
   }
 }
@@ -205,6 +205,7 @@ function stepBattle(state, campaign, territory) {
   s.floats = s.floats.filter((f) => f.life > 0).map((f) => ({ ...f, y: f.y - 16 * dt, life: f.life - dt }))
   s.projectiles = s.projectiles.filter((p) => p.life > 0).map((p) => ({ ...p, life: p.life - dt }))
   s.impacts = s.impacts.filter((e) => e.life > 0).map((e) => ({ ...e, life: e.life - dt }))
+  s.fallen = s.fallen.filter((f) => f.life > 0).map((f) => ({ ...f, life: f.life - dt }))
 
   for (const u of s.units) {
     const def = unitDefs[u.type]
@@ -250,7 +251,12 @@ function stepBattle(state, campaign, territory) {
     }
     if (u.animUntil <= s.t) u.anim = 'idle'
   }
-  s.units = s.units.filter((u) => u.hp > 0)
+  const survivors = []
+  for (const u of s.units) {
+    if (u.hp > 0) survivors.push(u)
+    else s.fallen.push({ ...u, life: 0.42 })
+  }
+  s.units = survivors
   if (s.enemyBase <= 0) s.result = 'victory'
   if (s.playerBase <= 0) s.result = 'defeat'
   return s
@@ -264,12 +270,8 @@ function BattleView({ battle, territory, onSpawn, onEnd }) {
     <div className="battlefield">
       <div className="base player-base"><div style={{width:`${(battle.playerBase/BASE_HP)*100}%`}}/></div>
       <div className="base enemy-base"><div style={{width:`${(battle.enemyBase/(BASE_HP+territory.difficulty*100))*100}%`}}/></div>
-      {battle.units.map((u) => {
-        const def = unitDefs[u.type]
-        return <div key={u.id} className={`unit ${u.side} ${u.type} anim-${u.anim} ${u.hitUntil > battle.t ? 'hit' : ''}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, ['--unit-color']: def.color }} title={`${def.name} ${Math.floor(u.hp)}hp`}>
-          <span className="body" /><span className="head" /><span className="weapon" /><span className="accent" />
-        </div>
-      })}
+      {battle.units.map((u) => <UnitSprite key={u.id} u={u} battleTime={battle.t} />)}
+      {battle.fallen.map((u) => <UnitSprite key={`dead-${u.id}-${u.life.toFixed(2)}`} u={u} dead />)}
       {battle.projectiles.map((p) => {
         const progress = 1 - p.life / p.maxLife
         const x = p.fromX + (p.toX - p.fromX) * progress
@@ -280,6 +282,24 @@ function BattleView({ battle, territory, onSpawn, onEnd }) {
     </div>
     {battle.result === 'ongoing' ? <div className="spawn-grid">{unitList.map(([k,v]) => <button key={k} onClick={() => onSpawn(k)}>{v.name} ({v.cost})</button>)}</div> :
       <div className="result"><h2>{battle.result === 'victory' ? 'Victory!' : 'Defeat!'}</h2><button onClick={onEnd}>Return to Map</button></div>}
+  </div>
+}
+
+function UnitSprite({ u, battleTime = 0, dead = false }) {
+  const def = unitDefs[u.type]
+  return <div className={`unit ${u.side} ${u.type} anim-${u.anim} ${u.hitUntil > battleTime ? 'hit' : ''} ${dead ? 'dead' : ''}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, ['--unit-color']: def.color }} title={`${def.name} ${Math.floor(Math.max(0, u.hp))}hp`}>
+    <span className="shadow" />
+    <span className="cape" />
+    <span className="body" />
+    <span className="head" />
+    <span className="helmet" />
+    <span className="shield" />
+    <span className="weapon" />
+    <span className="weapon-swing" />
+    <span className="sigil" />
+    <span className="wheel wheel-a" />
+    <span className="wheel wheel-b" />
+    <span className="ram-head" />
   </div>
 }
 

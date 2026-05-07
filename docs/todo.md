@@ -13,6 +13,7 @@
 - [ ] Improve enemy spawn logic (weighted by commander traits and situation).
 - [x] Improve battle readability (targeting clarity, lane depth, better unit silhouettes).
 - [x] Refine battlefield visual style toward dark-fantasy polish (unit materials, hit feedback, moodier UI pass) without changing combat systems.
+- [x] Perform major in-battle visual overhaul (distinct unit sprite system, stronger commander treatment, visible attack/death effects).
 
 ## Nemesis depth
 - [ ] Expand commander trait system (more strengths/weaknesses with mechanical impact).
