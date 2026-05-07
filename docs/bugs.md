@@ -23,3 +23,7 @@
 2. **Units could pass through enemy base instead of sieging**
    - Units now stop at base assault distance and continue attacking until blocked, dead, or base destruction.
 
+
+3. **Large campaign/progression pass partially complete**
+   - Added expanded map and unlock gating, but dedicated shop UI is still pending.
+   - Impact: long-term loop improved, upgrade purchasing UX still incomplete.

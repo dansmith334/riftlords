@@ -46,3 +46,8 @@
 - Units now stop at enemy base assault range and repeatedly attack it instead of passing through.
 - Base assault is interrupted by nearby enemy blockers, so lane fights can peel attackers off the gate.
 - Siege Ram remains the strongest base breaker through its base-damage multiplier.
+
+## Campaign expansion pass (2026-05-07)
+- Territory count increased to 18 with typed regions and unlock-gated progression to create route planning.
+- Campaign now grants war supplies currency rewards after victories.
+- First base-defense mechanics integrated: tower auto-fire, spikes near base, and wall reinforcement HP scaling hooks.

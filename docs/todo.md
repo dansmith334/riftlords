@@ -25,3 +25,7 @@
 ## Quality
 - [ ] Add save versioning/migration for localStorage schema updates.
 - [ ] Add reset/save-management controls in UI.
+
+- [x] Expand campaign map to 18 territories with unlock gating and typed regions.
+- [~] Add progression shop and purchasable upgrades (partial: reward currency + defense hooks landed).
+- [x] Add first pass base defenses (tower/spikes/wall effects).

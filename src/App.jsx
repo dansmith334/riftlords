@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 const FIELD_WIDTH = 1100
-const BASE_HP = 1200
+const BASE_HP = 1250
 const TICK = 100
 
 const unitDefs = {
@@ -25,14 +25,24 @@ const heroDefs = {
 const heroClassPool = Object.keys(heroDefs)
 
 const initialTerritories = [
-  ['Ashen Ford', 1, 'Fog of war: enemy ranged +10% damage'],
-  ['Blackroot Den', 1, 'Savage charge: enemy knight spawn chance up'],
-  ['Grimhollow Pass', 2, 'Iron discipline: enemy units +8% hp'],
-  ['Moonshard Fields', 2, 'Long sight: enemy archers +25 range'],
-  ['Cinder Watch', 3, 'War taxes: gold income -10%'],
-  ['Dreadfen', 3, 'Bloodthirst: enemy damage +10% after kill'],
-  ['Stormgate Ruins', 4, 'Siege doctrine: base damage +20%'],
-  ['Nemesis Keep', 5, 'High Warlord: commander starts level +2'],
+  ['Ashen Ford', 1, 'Village', 'Fog of war: enemy ranged +10% damage'],
+  ['Whisper Glen', 1, 'Forest Pass', 'Bramble paths: enemy units +4% speed'],
+  ['Broken Shrine', 1, 'Shrine', 'Fading blessings: enemy hero cooldown -8%'],
+  ['Blackroot Den', 2, 'Enemy Camp', 'Savage charge: enemy knight spawn chance up'],
+  ['Dawn Mine', 2, 'Mine', 'War taxes: player starting gold -20'],
+  ['Pinegate Watch', 2, 'Watchtower', 'Long sight: enemy archers +25 range'],
+  ['Grimhollow Pass', 3, 'Forest Pass', 'Iron discipline: enemy units +8% hp'],
+  ['Moonshard Fields', 3, 'Ruins', 'Moon curse: enemy priests heal +15%'],
+  ['Gloomwatch', 3, 'Watchtower', 'Marked lane: enemy first spawn arrives sooner'],
+  ['Cinder Watch', 4, 'Commander Fortress', 'Hot ash: enemy base damage +18%'],
+  ['Dreadfen', 4, 'Ruins', 'Bloodthirst: enemy damage +10% after kill'],
+  ['Stormgate Ruins', 4, 'Enemy Camp', 'Siege doctrine: enemy ram chance up'],
+  ['Ironfen Mine', 5, 'Mine', 'Iron coffers: enemy income +8%'],
+  ['Thornwall Bastion', 5, 'Commander Fortress', 'Bastion guard: enemy base HP +180'],
+  ['Sable Shrine', 5, 'Shrine', 'Dark rite: enemy heroes gain +35 max HP'],
+  ['Obsidian Gate', 6, 'Commander Fortress', 'Elite patrol: enemy spawns include shield wall'],
+  ['Nemesis Keep', 6, 'Boss Stronghold', 'High Warlord: commander starts level +2'],
+  ['Rift Crown Citadel', 7, 'Boss Stronghold', 'Nemesis throne: enemy base +400 HP, hero cooldown -15%'],
 ]
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)]
@@ -62,17 +72,27 @@ const generateCommander = (i, territory) => {
 
 const buildCampaign = () => {
   const saved = JSON.parse(localStorage.getItem('riftlords_campaign') || 'null')
-  if (saved?.territories?.length === 8) return saved
+  if (saved?.territories?.length >= 8) {
+    const withDefaults = {
+      ...saved,
+      resources: saved.resources || { gold: 100 },
+      upgrades: { incomeMult: 1, unitHpMult: 1, unitDmgMult: 1, heroBoost: 0, heroCooldown: 0, towerLevel: 0, spikesLevel: 0, wallLevel: 0, unlockShieldbearer: false, ...(saved.upgrades || {}) },
+    }
+    return withDefaults
+  }
   const territories = initialTerritories.map((t, i) => ({
     id: i,
     name: t[0],
     difficulty: t[1],
-    modifier: t[2],
-    reward: `+${10 + t[1] * 5}% gold income`,
+    type: t[2],
+    modifier: t[3],
+    reward: `+${35 + t[1] * 18} war supplies`,
+    unlocked: i < 2,
+    unlocks: [i + 1, i + 2].filter((id) => id < initialTerritories.length),
     conquered: false,
     commander: generateCommander(i, t),
   }))
-  return { territories, upgrades: { incomeMult: 1, unitHpMult: 1, unitDmgMult: 1 }, heroClass: 'warrior' }
+  return { territories, resources: { gold: 100 }, upgrades: { incomeMult: 1, unitHpMult: 1, unitDmgMult: 1, heroBoost: 0, heroCooldown: 0, towerLevel: 0, spikesLevel: 0, wallLevel: 0, unlockShieldbearer: false }, heroClass: 'warrior' }
 }
 
 function App() {
@@ -96,6 +116,7 @@ function App() {
   }, [battleState])
 
   const startBattle = (territory) => {
+    if (!territory.unlocked) return
     setActiveTerritory(territory)
     setBattleState(makeBattle(territory, campaign.upgrades, campaign.heroClass))
     setScreen('battle')
@@ -120,8 +141,13 @@ function App() {
         tc.commander.alive = false
       }
       tc.commander.memory.push(`Player overran my lines at ${tc.name}.`)
-      c.upgrades.incomeMult += 0.05
-      c.upgrades.unitDmgMult += 0.03
+      tc.unlocks?.forEach((id) => {
+        const next = c.territories.find((x) => x.id === id)
+        if (next) next.unlocked = true
+      })
+      c.resources.gold = (c.resources.gold || 0) + 35 + tc.difficulty * 18
+      c.upgrades.incomeMult += 0.02
+      c.upgrades.unitDmgMult += 0.02
     } else {
       tc.commander.level += 1
       tc.commander.strength = rand(['Archers', 'Armor', 'Cavalry', 'Siege'])
@@ -148,13 +174,14 @@ function MapView({ campaign, onStart, onHeroClass }) {
   return <div className="map">
     <h2>Campaign Map</h2>
     <div className="hero-select">
+      <p><b>War Supplies:</b> {Math.floor(campaign.resources?.gold || 0)}</p>
       <p><b>Champion:</b> {heroDefs[campaign.heroClass].name} ({campaign.heroClass})</p>
       <div>{heroClassPool.map((k) => <button key={k} onClick={() => onHeroClass(k)}>{heroDefs[k].name}</button>)}</div>
     </div>
     <div className="territory-grid">
       {campaign.territories.map((t) => (
-        <button key={t.id} className={`card ${t.conquered ? 'conquered' : ''}`} onClick={() => onStart(t)}>
-          <h3>{t.name}</h3><p>Difficulty {t.difficulty}</p><p>{t.modifier}</p><p>Reward: {t.reward}</p>
+        <button key={t.id} className={`card ${t.conquered ? 'conquered' : ''} ${!t.unlocked ? 'locked' : ''}`} onClick={() => onStart(t)}>
+          <h3>{t.name}</h3><p>{t.type}</p><p>Difficulty {t.difficulty}</p><p>{t.modifier}</p><p>Reward: {t.reward}</p><p>{t.unlocked ? (t.conquered ? 'Conquered' : 'Available') : 'Locked'}</p>
           <div className={`commander-chip faction-${t.commander.faction.toLowerCase().replace(/\s+/g, '-')}`}><div className="portrait">{t.commander.name.slice(0, 1)}</div><p><b>{t.commander.name}</b> {t.commander.title} (Lv {t.commander.level})</p></div>
           <p>"{taunt(t.commander)}"</p>
         </button>
@@ -170,10 +197,12 @@ function makeBattle(territory, upgrades, playerHeroClass = 'warrior') {
   return {
     t: 0, gold: 240, income: 28 * upgrades.incomeMult,
     enemyGold: 205 + territory.difficulty * 35 + (isLearningBattle ? 20 : 0), enemyIncome: 24 + territory.difficulty * 2, nextEnemySpawn: isLearningBattle ? 2.4 : 2.8,
-    playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
+    playerBase: BASE_HP + upgrades.wallLevel * 180, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
     units: [], fallen: [], floats: [], projectiles: [], impacts: [], result: 'ongoing',
     commanderLine: `${territory.commander.name} ${territory.commander.title}: "${taunt(territory.commander)}"`,
     playerHeroClass,
+    upgrades,
+    defenseCd: { tower: 0, spikes: 0 },
     enemyHeroClass: Math.random() < 0.5 ? playerHeroClass : rand(heroClassPool),
   }
 }
@@ -266,7 +295,7 @@ function stepBattle(state, campaign, territory) {
     }
 
     if (u.type === 'priest' && ally && u.cd <= 0) {
-      const heal = Math.abs(def.dmg)
+      const heal = Math.abs(def.dmg) * campaign.upgrades.unitHpMult
       ally.hp = Math.min(ally.maxHp, ally.hp + heal)
       u.cd = def.rate
       s.floats.push({ id: uid(), x: ally.x, y: 240, life: 0.7, txt: `${Math.round(heal)}`, heal: true })
@@ -274,7 +303,7 @@ function stepBattle(state, campaign, territory) {
       u.animUntil = s.t + 0.35
       s.impacts.push({ id: uid(), x: ally.x, y: 250, life: 0.3, type: 'heal' })
     } else if (near && u.cd <= 0) {
-      let dmg = def.dmg
+      let dmg = def.dmg * campaign.upgrades.unitDmgMult
       if (u.buff?.until > s.t) dmg *= u.buff.dmg
       if (u.type === 'spearman' && near.type === 'knight') dmg *= 1.4
       near.hp -= Math.max(1, dmg) * (near.buff?.until > s.t ? near.buff.def : 1)
@@ -286,7 +315,8 @@ function stepBattle(state, campaign, territory) {
       s.impacts.push({ id: uid(), x: near.x, y: 260, life: 0.18, type: 'hit' })
       if (u.type === 'archer') s.projectiles.push({ id: uid(), fromX: u.x, toX: near.x, y: 244, life: 0.18, maxLife: 0.18 })
     } else if (!near && !atBase) {
-      u.x += (u.side === 'player' ? 1 : -1) * def.speed * dt
+      const slowMult = u.slowUntil > s.t ? 0.7 : 1
+      u.x += (u.side === 'player' ? 1 : -1) * def.speed * dt * slowMult
     }
 
     if (atBase && u.cd <= 0 && !near) {
@@ -308,6 +338,27 @@ function stepBattle(state, campaign, territory) {
     else s.fallen.push({ ...u, life: 0.42 })
   }
   s.units = survivors
+  const towerLevel = s.upgrades?.towerLevel || 0
+  const spikesLevel = s.upgrades?.spikesLevel || 0
+  if (towerLevel > 0 && s.defenseCd.tower <= 0) {
+    const target = s.units.find((u) => u.side === 'enemy' && u.x < 300)
+    if (target) {
+      const td = [0, 12, 18, 25][towerLevel]
+      target.hp -= td
+      s.floats.push({ id: uid(), x: target.x, y: 250, life: 0.7, txt: `${td}`, heal: false })
+      s.defenseCd.tower = [99, 1.2, 1, 0.9][towerLevel]
+    }
+  }
+  if (spikesLevel > 0 && s.defenseCd.spikes <= 0) {
+    const closeEnemies = s.units.filter((u) => u.side === 'enemy' && u.x < 170)
+    if (closeEnemies.length) {
+      const sd = [0, 8, 12, 18][spikesLevel]
+      closeEnemies.forEach((e) => { e.hp -= sd; e.slowUntil = s.t + [0, 1.2, 1.5, 1.8][spikesLevel] })
+      s.defenseCd.spikes = 1.8
+    }
+  }
+  s.defenseCd.tower -= dt
+  s.defenseCd.spikes -= dt
   if (s.enemyBase <= 0) s.result = 'victory'
   if (s.playerBase <= 0) s.result = 'defeat'
   return s
