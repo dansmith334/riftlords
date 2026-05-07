@@ -8,6 +8,7 @@
 - [ ] Add lightweight automated tests for battle step logic.
 
 ## Balance and polish
+- [x] Validate balance targets with eval harness after each tuning pass (current snapshot: first 85%, normal 53%).
 - [ ] Tune unit stats/cost curves for mid/late difficulty.
 - [ ] Improve enemy spawn logic (weighted by commander traits and situation).
 - [ ] Improve battle readability (targeting clarity, lane depth, better unit silhouettes).

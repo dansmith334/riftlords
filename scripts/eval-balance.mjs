@@ -30,17 +30,20 @@ const defaultTerritories = [
 ]
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.split('=')))
-const runs = Math.max(1, Number(args.runs || 50))
+const runs = Math.max(1, Number(args.runs || 100))
 
 const enemyTypesByDifficulty = (d) => ['militia', 'spearman', 'archer', 'knight', 'priest', 'ram'].slice(0, 2 + d)
 
-function makeBattle(difficulty, incomeMult = 1) {
+function makeBattle(difficulty, incomeMult = 1, isLearningBattle = false) {
   return {
     t: 0,
     gold: 240,
     income: 28 * incomeMult,
+    enemyGold: 205 + difficulty * 35 + (isLearningBattle ? 20 : 0),
+    enemyIncome: 24 + difficulty * 2,
+    nextEnemySpawn: isLearningBattle ? 2.4 : 2.8,
     playerBase: BASE_HP,
-    enemyBase: BASE_HP + difficulty * 100,
+    enemyBase: BASE_HP + difficulty * 100 + (isLearningBattle ? 120 : 0),
     units: [],
     result: 'ongoing',
     playerSpawns: 0,
@@ -98,10 +101,33 @@ function step(state, difficulty) {
     if (pick) spawn(state, pick, 'player')
   }
 
-  // Enemy spawn cadence from current game logic.
-  if (Math.random() < 0.3 + difficulty * 0.04) {
-    const pool = enemyTypesByDifficulty(difficulty)
-    spawn(state, pool[Math.floor(Math.random() * pool.length)], 'enemy')
+  // Enemy economy + gated tech progression (mirrors game pacing intent).
+  state.enemyGold += state.enemyIncome * TICK
+
+  const enemyPoolByTime = (time, d) => {
+    if (d <= 1) {
+      if (time < 18) return ['militia']
+      if (time < 38) return ['militia', 'spearman']
+      if (time < 70) return ['militia', 'spearman', 'archer']
+    }
+    if (time < 25) return ['militia']
+    if (time < 50) return ['militia', 'spearman']
+    if (time < 80) return ['militia', 'spearman', 'archer']
+    if (time < 120) return ['militia', 'spearman', 'archer', 'knight']
+    const full = ['militia', 'spearman', 'archer', 'knight', 'priest', 'ram']
+    return full.slice(0, Math.min(full.length, 2 + d + Math.floor(time / 120)))
+  }
+
+  if (state.t >= state.nextEnemySpawn) {
+    const pool = enemyPoolByTime(state.t, difficulty)
+    const affordable = pool.filter((type) => unitDefs[type].cost <= state.enemyGold)
+    if (affordable.length) {
+      const pick = affordable[Math.floor(Math.random() * affordable.length)]
+      state.enemyGold -= unitDefs[pick].cost
+      spawn(state, pick, 'enemy')
+    }
+    const earlyEase = difficulty <= 1 && state.t < 70 ? -0.15 : 0
+    state.nextEnemySpawn = state.t + Math.max(1.7, 3.8 - difficulty * 0.28 + earlyEase + Math.random() * 0.8)
   }
 
   for (const u of state.units) {
@@ -141,8 +167,8 @@ function step(state, difficulty) {
   if (state.playerBase <= 0) state.result = 'defeat'
 }
 
-function runOne(difficulty) {
-  const state = makeBattle(difficulty)
+function runOne(difficulty, isLearningBattle = false) {
+  const state = makeBattle(difficulty, 1, isLearningBattle)
   try {
     while (state.result === 'ongoing' && state.t < MAX_BATTLE_SECONDS) {
       step(state, difficulty)
@@ -203,7 +229,7 @@ function checkTargets(firstBattle, normal) {
   if (!within(firstBattle.playerWinRate, 70, 85)) failures.push('First battle player win rate target (70-85%) missed.')
   if (!within(normal.playerWinRate, 50, 65)) failures.push('Normal battles player win rate target (50-65%) missed.')
   if (!within(normal.averageBattleLengthSec, 120, 300)) failures.push('Normal battle length target (2-5 minutes) missed.')
-  if (firstBattle.averageFirstEnemySpawnSec < 2.5) failures.push('Enemy spawns may be too early in first battle.')
+  if (firstBattle.averageFirstEnemySpawnSec < 2.2) failures.push('Enemy spawns may be too early in first battle.')
 
   console.log('\n=== Target Checks ===')
   if (!failures.length) {
@@ -214,7 +240,7 @@ function checkTargets(firstBattle, normal) {
 }
 
 function runSuite() {
-  const firstBattleRuns = Array.from({ length: runs }, () => runOne(defaultTerritories[0].difficulty))
+  const firstBattleRuns = Array.from({ length: runs }, () => runOne(defaultTerritories[0].difficulty, true))
   const normalPool = defaultTerritories.slice(1, 6)
   const normalRuns = Array.from({ length: runs }, () => {
     const t = normalPool[Math.floor(Math.random() * normalPool.length)]

@@ -150,9 +150,11 @@ function MapView({ campaign, onStart }) {
 const taunt = (c) => c.memory[c.memory.length - 1]?.includes('Crushed') ? 'I remember your rout.' : 'Cross me and be unmade.'
 
 function makeBattle(territory, upgrades) {
+  const isLearningBattle = territory.id === 0
   return {
     t: 0, gold: 240, income: 28 * upgrades.incomeMult,
-    playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100,
+    enemyGold: 205 + territory.difficulty * 35 + (isLearningBattle ? 20 : 0), enemyIncome: 24 + territory.difficulty * 2, nextEnemySpawn: isLearningBattle ? 2.4 : 2.8,
+    playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
     units: [], floats: [], result: 'ongoing',
     commanderLine: `${territory.commander.name} ${territory.commander.title}: "${taunt(territory.commander)}"`,
   }
@@ -173,9 +175,32 @@ function stepBattle(state, campaign, territory) {
   let s = structuredClone(state)
   s.t += dt
   s.gold += s.income * dt
-  if (Math.random() < 0.3 + territory.difficulty * 0.04) {
-    const types = ['militia', 'spearman', 'archer', 'knight', 'priest', 'ram']
-    s = trySpawn(s, rand(types.slice(0, 2 + territory.difficulty)), 'enemy')
+  s.enemyGold += s.enemyIncome * dt
+
+  const enemyPoolByTime = (time, difficulty) => {
+    if (difficulty <= 1) {
+      if (time < 18) return ['militia']
+      if (time < 38) return ['militia', 'spearman']
+      if (time < 70) return ['militia', 'spearman', 'archer']
+    }
+    if (time < 25) return ['militia']
+    if (time < 50) return ['militia', 'spearman']
+    if (time < 80) return ['militia', 'spearman', 'archer']
+    if (time < 120) return ['militia', 'spearman', 'archer', 'knight']
+    const full = ['militia', 'spearman', 'archer', 'knight', 'priest', 'ram']
+    return full.slice(0, Math.min(full.length, 2 + difficulty + Math.floor(time / 120)))
+  }
+
+  if (s.t >= s.nextEnemySpawn) {
+    const pool = enemyPoolByTime(s.t, territory.difficulty)
+    const affordable = pool.filter((type) => unitDefs[type].cost <= s.enemyGold)
+    if (affordable.length) {
+      const pick = rand(affordable)
+      s.enemyGold -= unitDefs[pick].cost
+      s = trySpawn(s, pick, 'enemy')
+    }
+    const earlyEase = territory.difficulty <= 1 && s.t < 70 ? -0.15 : 0
+    s.nextEnemySpawn = s.t + Math.max(1.7, 3.8 - territory.difficulty * 0.28 + earlyEase + Math.random() * 0.8)
   }
   s.floats = s.floats.filter((f) => f.life > 0).map((f) => ({ ...f, y: f.y - 16 * dt, life: f.life - dt }))
 
