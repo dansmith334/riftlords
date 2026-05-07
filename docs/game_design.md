@@ -51,3 +51,7 @@
 - Territory count increased to 18 with typed regions and unlock-gated progression to create route planning.
 - Campaign now grants war supplies currency rewards after victories.
 - First base-defense mechanics integrated: tower auto-fire, spikes near base, and wall reinforcement HP scaling hooks.
+## Player hero command controls (new)
+- In battle, the player hero now has manual **Forward / Hold / Retreat** command buttons.
+- Selected command persists until changed and is visually highlighted.
+- Commands only affect the player hero movement logic; the enemy hero remains AI-driven.

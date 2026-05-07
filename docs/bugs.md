@@ -27,3 +27,6 @@
 3. **Large campaign/progression pass partially complete**
    - Added expanded map and unlock gating, but dedicated shop UI is still pending.
    - Impact: long-term loop improved, upgrade purchasing UX still incomplete.
+3. **Units could appear to attack enemy base without reducing base HP**
+   - Root cause fixed in combat sequencing: base-contact state is now computed after movement/clamping so base attacks can fire reliably each cooldown tick and HP/UI/result states update correctly.
+

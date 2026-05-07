@@ -8,6 +8,7 @@
 - [x] Fix base-stop + sustained base attacking behavior for both sides.
 - [x] Add first-pass hero system (3 classes, cooldown abilities, UI panel, auto enemy hero).
 - [ ] Add lightweight automated tests for battle step logic.
+- [x] Add player-hero Forward/Hold/Retreat command controls with persistent state and active-button highlighting.
 
 ## Balance and polish
 - [x] Validate balance targets with eval harness after each tuning pass (current snapshot: first 85%, normal 53%).
