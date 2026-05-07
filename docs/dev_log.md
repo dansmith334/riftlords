@@ -29,5 +29,9 @@
 - Added first-pass hero system with 3 classes (Warrior/Ranger/Paladin), per-battle hero spawn for both sides, cooldown abilities, hero selection on map, and in-battle hero status panel.
 - Updated balance harness to model base-stop siege behavior and hero presence in simulations.
 
+- Expanded prototype campaign from 8 to 18 territories with typed regions, scaling rewards, and unlock-gated progression.
+- Added campaign war supplies currency rewards and persisted defaults for new save fields (resources + defense levels).
+- Added first pass base defenses in battle simulation: archer tower shots, spiked barricade pulses, and wall HP scaling.
+- Added roadmap doc (`docs/roadmap.md`) to track implemented vs deferred scope for this larger strategy pass.
 - Fixed tower/base damage regression by reordering movement vs. base-contact checks in `stepBattle`, clamping units to the siege stop line after movement, and ensuring repeated base attacks reduce HP and trigger battle end state.
 - Added player-hero command controls (Forward/Hold/Retreat) with persistent state, active-button highlighting, and movement logic that only affects the player hero while preserving enemy hero AI.
