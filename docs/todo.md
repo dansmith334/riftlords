@@ -12,6 +12,7 @@
 - [ ] Tune unit stats/cost curves for mid/late difficulty.
 - [ ] Improve enemy spawn logic (weighted by commander traits and situation).
 - [x] Improve battle readability (targeting clarity, lane depth, better unit silhouettes).
+- [x] Refine battlefield visual style toward dark-fantasy polish (unit materials, hit feedback, moodier UI pass) without changing combat systems.
 
 ## Nemesis depth
 - [ ] Expand commander trait system (more strengths/weaknesses with mechanical impact).
