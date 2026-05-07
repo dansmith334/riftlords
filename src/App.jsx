@@ -139,7 +139,7 @@ function MapView({ campaign, onStart }) {
       {campaign.territories.map((t) => (
         <button key={t.id} className={`card ${t.conquered ? 'conquered' : ''}`} onClick={() => onStart(t)}>
           <h3>{t.name}</h3><p>Difficulty {t.difficulty}</p><p>{t.modifier}</p><p>Reward: {t.reward}</p>
-          <p><b>{t.commander.name}</b> {t.commander.title} (Lv {t.commander.level})</p>
+          <div className={`commander-chip faction-${t.commander.faction.toLowerCase().replace(/\s+/g, '-')}`}><div className="portrait">{t.commander.name.slice(0, 1)}</div><p><b>{t.commander.name}</b> {t.commander.title} (Lv {t.commander.level})</p></div>
           <p>"{taunt(t.commander)}"</p>
         </button>
       ))}
@@ -155,7 +155,7 @@ function makeBattle(territory, upgrades) {
     t: 0, gold: 240, income: 28 * upgrades.incomeMult,
     enemyGold: 205 + territory.difficulty * 35 + (isLearningBattle ? 20 : 0), enemyIncome: 24 + territory.difficulty * 2, nextEnemySpawn: isLearningBattle ? 2.4 : 2.8,
     playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
-    units: [], floats: [], result: 'ongoing',
+    units: [], floats: [], projectiles: [], impacts: [], result: 'ongoing',
     commanderLine: `${territory.commander.name} ${territory.commander.title}: "${taunt(territory.commander)}"`,
   }
 }
@@ -165,7 +165,7 @@ function trySpawn(state, type, side) {
   const def = unitDefs[type]
   if (!def) return state
   if (side === 'player' && state.gold < def.cost) return state
-  const unit = { id: uid(), type, side, hp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0 }
+  const unit = { id: uid(), type, side, hp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0, anim: 'idle', animUntil: 0, hitUntil: 0 }
   return { ...state, gold: side === 'player' ? state.gold - def.cost : state.gold, units: [...state.units, unit] }
 }
 
@@ -203,6 +203,8 @@ function stepBattle(state, campaign, territory) {
     s.nextEnemySpawn = s.t + Math.max(1.7, 3.8 - territory.difficulty * 0.28 + earlyEase + Math.random() * 0.8)
   }
   s.floats = s.floats.filter((f) => f.life > 0).map((f) => ({ ...f, y: f.y - 16 * dt, life: f.life - dt }))
+  s.projectiles = s.projectiles.filter((p) => p.life > 0).map((p) => ({ ...p, life: p.life - dt }))
+  s.impacts = s.impacts.filter((e) => e.life > 0).map((e) => ({ ...e, life: e.life - dt }))
 
   for (const u of s.units) {
     const def = unitDefs[u.type]
@@ -217,12 +219,20 @@ function stepBattle(state, campaign, territory) {
       ally.hp = Math.min(unitDefs[ally.type].hp, ally.hp + heal)
       u.cd = def.rate
       s.floats.push({ id: uid(), x: ally.x, y: 240, life: 0.7, txt: `${Math.round(heal)}`, heal: true })
+      u.anim = 'cast'
+      u.animUntil = s.t + 0.35
+      s.impacts.push({ id: uid(), x: ally.x, y: 250, life: 0.3, type: 'heal' })
     } else if (near && u.cd <= 0) {
       let dmg = def.dmg
       if (u.type === 'spearman' && near.type === 'knight') dmg *= 1.4
       near.hp -= Math.max(1, dmg)
       u.cd = def.rate
+      u.anim = u.type === 'ram' ? 'slam' : (u.type === 'archer' ? 'shoot' : 'strike')
+      u.animUntil = s.t + 0.22
+      near.hitUntil = s.t + 0.2
       s.floats.push({ id: uid(), x: near.x, y: 260, life: 0.7, txt: `${Math.round(Math.abs(dmg))}`, heal: false })
+      s.impacts.push({ id: uid(), x: near.x, y: 260, life: 0.18, type: 'hit' })
+      if (u.type === 'archer') s.projectiles.push({ id: uid(), fromX: u.x, toX: near.x, y: 244, life: 0.18, maxLife: 0.18 })
     } else if (!near) {
       u.x += (u.side === 'player' ? 1 : -1) * def.speed * dt
     }
@@ -233,8 +243,12 @@ function stepBattle(state, campaign, territory) {
       if (u.side === 'player') s.enemyBase -= bd
       else s.playerBase -= bd
       u.cd = def.rate
+      u.anim = u.type === 'ram' ? 'slam' : 'strike'
+      u.animUntil = s.t + 0.24
       s.floats.push({ id: uid(), x: enemyBaseX, y: 180, life: 0.7, txt: `${Math.round(bd)}` })
+      s.impacts.push({ id: uid(), x: enemyBaseX, y: 190, life: 0.2, type: 'hit' })
     }
+    if (u.animUntil <= s.t) u.anim = 'idle'
   }
   s.units = s.units.filter((u) => u.hp > 0)
   if (s.enemyBase <= 0) s.result = 'victory'
@@ -252,8 +266,16 @@ function BattleView({ battle, territory, onSpawn, onEnd }) {
       <div className="base enemy-base"><div style={{width:`${(battle.enemyBase/(BASE_HP+territory.difficulty*100))*100}%`}}/></div>
       {battle.units.map((u) => {
         const def = unitDefs[u.type]
-        return <div key={u.id} className={`unit ${u.side}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, background: def.color }} title={`${def.name} ${Math.floor(u.hp)}hp`} />
+        return <div key={u.id} className={`unit ${u.side} ${u.type} anim-${u.anim} ${u.hitUntil > battle.t ? 'hit' : ''}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, ['--unit-color']: def.color }} title={`${def.name} ${Math.floor(u.hp)}hp`}>
+          <span className="body" /><span className="head" /><span className="weapon" /><span className="accent" />
+        </div>
       })}
+      {battle.projectiles.map((p) => {
+        const progress = 1 - p.life / p.maxLife
+        const x = p.fromX + (p.toX - p.fromX) * progress
+        return <div key={p.id} className="projectile arrow" style={{ left: `${(x / FIELD_WIDTH) * 100}%`, top: `${p.y}px` }} />
+      })}
+      {battle.impacts.map((e) => <div key={e.id} className={`impact ${e.type}`} style={{ left: `${(e.x / FIELD_WIDTH) * 100}%`, top: `${e.y}px` }} />)}
       {battle.floats.map((f) => <div key={f.id} className={`float ${f.heal ? 'heal' : ''}`} style={{ left: `${(f.x / FIELD_WIDTH) * 100}%`, top: `${f.y}px` }}>{f.heal ? '+' : '-'}{f.txt}</div>)}
     </div>
     {battle.result === 'ongoing' ? <div className="spawn-grid">{unitList.map(([k,v]) => <button key={k} onClick={() => onSpawn(k)}>{v.name} ({v.cost})</button>)}</div> :

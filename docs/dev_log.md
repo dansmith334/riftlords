@@ -10,3 +10,8 @@
 - Reworked early/mid enemy pacing in game + harness: added enemy gold economy, tech-gated unit pools by battle time, spawn cooldown scheduling, and lighter early aggression.
 - Added a learning-battle profile for Ashen Ford (territory id 0) with tuned enemy pacing/base values to keep it beginner-friendly without trivializing it.
 - Re-ran `npm run eval:balance` (100 runs/scenario): first battle win rate 85%, normal win rate 53%, avg battle length 4.82-4.88 min, first enemy spawn 2.4s/2.8s, crashes 0.
+
+- Added unit silhouette pass so Militia, Spearman, Archer, Knight, Priest, and Siege Ram now read as their names/classes using lightweight CSS-built shapes.
+- Added commander portrait chips on campaign cards with faction-based color coding to improve commander uniqueness at map glance.
+- Added combat feel pass: melee strike/lunge, archer shoot animation + projectile, priest cast/heal pulse, ram slam, plus impact flashes and hit feedback.
+- Added `docs/visual_design.md` to document the visual language and performance guardrails for future iterations.

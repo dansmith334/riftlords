@@ -13,5 +13,9 @@
    - Modifier strings display on map but are not systematically translated into runtime battle effects.
    - Impact: campaign choices feel less distinct.
 
+
 ## Resolved
-- None logged yet.
+1. **Units rendered as generic blocks with weak readability**
+   - Replaced block-only bodies with class-specific silhouettes and commander portrait chips.
+   - Added attack/heal/hit visuals so combat intent is readable at a glance.
+
