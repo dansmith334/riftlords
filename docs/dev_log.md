@@ -19,3 +19,8 @@
 - Refined unit proportions and silhouettes with subtle armor/material shading and clearer role accents so classes remain identifiable but less toy-like.
 - Tightened attack animation timing curves and motion offsets to improve impact weight without exaggerated/cartoon movement.
 - Improved combat feedback readability by upgrading hit flash treatment, impact burst gradients, and projectile treatment for punchier but restrained feel.
+
+- Shipped a major visual overhaul focused on battlefield readability and style while preserving gameplay values: introduced reusable `UnitSprite` layering and class-distinct silhouettes for militia, spearman, archer, knight, priest, and siege ram.
+- Upgraded commander chips to feel elite/named with heavier faction trim treatment and less placeholder portrait styling.
+- Strengthened combat FX with visible weapon arcs, clearer arrows, brighter priest cast pulses, stronger impacts, hit recoil flashes, and short death fade states for defeated units.
+- Reworked lane/background/base presentation into a darker fantasy arcade look with clearer ground separation and more legible base health bars.
