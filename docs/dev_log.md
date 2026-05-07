@@ -24,3 +24,7 @@
 - Upgraded commander chips to feel elite/named with heavier faction trim treatment and less placeholder portrait styling.
 - Strengthened combat FX with visible weapon arcs, clearer arrows, brighter priest cast pulses, stronger impacts, hit recoil flashes, and short death fade states for defeated units.
 - Reworked lane/background/base presentation into a darker fantasy arcade look with clearer ground separation and more legible base health bars.
+
+- Implemented base assault fix: units now stop at enemy base edge and repeatedly attack instead of sliding through structures; assaults are interrupted by nearby enemy blockers.
+- Added first-pass hero system with 3 classes (Warrior/Ranger/Paladin), per-battle hero spawn for both sides, cooldown abilities, hero selection on map, and in-battle hero status panel.
+- Updated balance harness to model base-stop siege behavior and hero presence in simulations.

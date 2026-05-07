@@ -33,3 +33,16 @@
 - Territory modifiers are mostly descriptive; only difficulty currently impacts simulation meaningfully.
 - Economy and upgrade hooks exist but are light.
 - No audio or sprite animation assets yet.
+
+
+## Hero system (new)
+- Each battle now spawns one **player hero** and one **enemy hero** automatically.
+- Current launch classes: **Warrior**, **Ranger**, **Paladin**.
+- Heroes have higher HP, distinct visuals, and class abilities on cooldown.
+- Player selects active hero class on the campaign map before entering battle.
+- Enemy commander fields a matching-or-random hero, tuned with delayed first cast to keep early battles fair.
+
+## Base assault behavior (new)
+- Units now stop at enemy base assault range and repeatedly attack it instead of passing through.
+- Base assault is interrupted by nearby enemy blockers, so lane fights can peel attackers off the gate.
+- Siege Ram remains the strongest base breaker through its base-damage multiplier.

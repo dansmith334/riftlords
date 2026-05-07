@@ -19,3 +19,7 @@
    - Replaced block-only bodies with class-specific silhouettes and commander portrait chips.
    - Added attack/heal/hit visuals so combat intent is readable at a glance.
 
+
+2. **Units could pass through enemy base instead of sieging**
+   - Units now stop at base assault distance and continue attacking until blocked, dead, or base destruction.
+

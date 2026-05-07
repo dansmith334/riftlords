@@ -5,6 +5,8 @@
 - [ ] Split `src/App.jsx` into modules (`campaign`, `battle`, `ui`) while preserving behavior.
 - [ ] Apply territory modifiers as real gameplay effects.
 - [ ] Wire upgrade rewards to visible strategic progression.
+- [x] Fix base-stop + sustained base attacking behavior for both sides.
+- [x] Add first-pass hero system (3 classes, cooldown abilities, UI panel, auto enemy hero).
 - [ ] Add lightweight automated tests for battle step logic.
 
 ## Balance and polish

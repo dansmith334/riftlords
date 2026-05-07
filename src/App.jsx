@@ -13,6 +13,17 @@ const unitDefs = {
   ram: { name: 'Siege Ram', cost: 280, hp: 360, dmg: 48, range: 35, speed: 28, rate: 1.4, color: '#8a6652', role: 'siege', baseBonus: 2.3 },
 }
 
+
+
+const BASE_STOP_BUFFER = 30
+
+const heroDefs = {
+  warrior: { name: 'Warrior', hp: 300, dmg: 22, range: 34, speed: 52, rate: 0.95, color: '#d06b5b', ability: 'Battle Shout', cooldown: 26 },
+  ranger: { name: 'Ranger', hp: 240, dmg: 18, range: 170, speed: 56, rate: 1.15, color: '#5ea970', ability: 'Volley Shot', cooldown: 24 },
+  paladin: { name: 'Paladin', hp: 280, dmg: 16, range: 40, speed: 50, rate: 1.05, color: '#d7c77f', ability: 'Radiant Heal', cooldown: 28 },
+}
+const heroClassPool = Object.keys(heroDefs)
+
 const initialTerritories = [
   ['Ashen Ford', 1, 'Fog of war: enemy ranged +10% damage'],
   ['Blackroot Den', 1, 'Savage charge: enemy knight spawn chance up'],
@@ -61,7 +72,7 @@ const buildCampaign = () => {
     conquered: false,
     commander: generateCommander(i, t),
   }))
-  return { territories, upgrades: { incomeMult: 1, unitHpMult: 1, unitDmgMult: 1 } }
+  return { territories, upgrades: { incomeMult: 1, unitHpMult: 1, unitDmgMult: 1 }, heroClass: 'warrior' }
 }
 
 function App() {
@@ -86,11 +97,12 @@ function App() {
 
   const startBattle = (territory) => {
     setActiveTerritory(territory)
-    setBattleState(makeBattle(territory, campaign.upgrades))
+    setBattleState(makeBattle(territory, campaign.upgrades, campaign.heroClass))
     setScreen('battle')
   }
 
   const spawn = (type) => setBattleState((s) => trySpawn(s, type, 'player'))
+  const setHeroClass = (heroClass) => setCampaign((c) => ({ ...c, heroClass }))
 
   const endBattle = () => {
     const result = battleState.result
@@ -123,7 +135,7 @@ function App() {
     <div className="app">
       <h1>Riftlords: Nemesis Siege</h1>
       {screen === 'map' && (
-        <MapView campaign={campaign} onStart={startBattle} />
+        <MapView campaign={campaign} onStart={startBattle} onHeroClass={setHeroClass} />
       )}
       {screen === 'battle' && battleState && (
         <BattleView battle={battleState} territory={activeTerritory} onSpawn={spawn} onEnd={endBattle} />
@@ -132,9 +144,13 @@ function App() {
   )
 }
 
-function MapView({ campaign, onStart }) {
+function MapView({ campaign, onStart, onHeroClass }) {
   return <div className="map">
     <h2>Campaign Map</h2>
+    <div className="hero-select">
+      <p><b>Champion:</b> {heroDefs[campaign.heroClass].name} ({campaign.heroClass})</p>
+      <div>{heroClassPool.map((k) => <button key={k} onClick={() => onHeroClass(k)}>{heroDefs[k].name}</button>)}</div>
+    </div>
     <div className="territory-grid">
       {campaign.territories.map((t) => (
         <button key={t.id} className={`card ${t.conquered ? 'conquered' : ''}`} onClick={() => onStart(t)}>
@@ -149,7 +165,7 @@ function MapView({ campaign, onStart }) {
 
 const taunt = (c) => c.memory[c.memory.length - 1]?.includes('Crushed') ? 'I remember your rout.' : 'Cross me and be unmade.'
 
-function makeBattle(territory, upgrades) {
+function makeBattle(territory, upgrades, playerHeroClass = 'warrior') {
   const isLearningBattle = territory.id === 0
   return {
     t: 0, gold: 240, income: 28 * upgrades.incomeMult,
@@ -157,6 +173,8 @@ function makeBattle(territory, upgrades) {
     playerBase: BASE_HP, enemyBase: BASE_HP + territory.difficulty * 100 + (isLearningBattle ? 120 : 0),
     units: [], fallen: [], floats: [], projectiles: [], impacts: [], result: 'ongoing',
     commanderLine: `${territory.commander.name} ${territory.commander.title}: "${taunt(territory.commander)}"`,
+    playerHeroClass,
+    enemyHeroClass: Math.random() < 0.5 ? playerHeroClass : rand(heroClassPool),
   }
 }
 
@@ -165,14 +183,24 @@ function trySpawn(state, type, side) {
   const def = unitDefs[type]
   if (!def) return state
   if (side === 'player' && state.gold < def.cost) return state
-  const unit = { id: uid(), type, side, hp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0, anim: 'idle', animUntil: 0, hitUntil: 0 }
+  const unit = { id: uid(), type, side, hp: def.hp, maxHp: def.hp, x: side === 'player' ? 100 : FIELD_WIDTH - 100, cd: 0, anim: 'idle', animUntil: 0, hitUntil: 0, kind: 'unit' }
   return { ...state, gold: side === 'player' ? state.gold - def.cost : state.gold, units: [...state.units, unit] }
+}
+
+function spawnHero(state, side, heroClass) {
+  const def = heroDefs[heroClass]
+  return {
+    ...state,
+    units: [...state.units, { id: uid(), side, type: heroClass, class: heroClass, kind: 'hero', hp: def.hp, maxHp: def.hp, x: side === 'player' ? 130 : FIELD_WIDTH - 130, cd: 0, heroCd: 4, anim: 'idle', animUntil: 0, hitUntil: 0 }],
+  }
 }
 
 function stepBattle(state, campaign, territory) {
   if (!state || state.result !== 'ongoing') return state
   const dt = TICK / 1000
   let s = structuredClone(state)
+  if (!s.units.some((u) => u.side === 'player' && u.kind === 'hero')) s = spawnHero(s, 'player', s.playerHeroClass)
+  if (!s.units.some((u) => u.side === 'enemy' && u.kind === 'hero')) s = spawnHero(s, 'enemy', s.enemyHeroClass)
   s.t += dt
   s.gold += s.income * dt
   s.enemyGold += s.enemyIncome * dt
@@ -208,16 +236,38 @@ function stepBattle(state, campaign, territory) {
   s.fallen = s.fallen.filter((f) => f.life > 0).map((f) => ({ ...f, life: f.life - dt }))
 
   for (const u of s.units) {
-    const def = unitDefs[u.type]
+    const def = u.kind === 'hero' ? heroDefs[u.class] : unitDefs[u.type]
     u.cd -= dt
     const enemies = s.units.filter((x) => x.side !== u.side)
     const allies = s.units.filter((x) => x.side === u.side && x.id !== u.id)
     const near = enemies.find((e) => Math.abs(e.x - u.x) <= def.range)
-    const ally = allies.find((a) => Math.abs(a.x - u.x) <= def.range && a.hp < unitDefs[a.type].hp)
+    const ally = allies.find((a) => Math.abs(a.x - u.x) <= def.range && a.hp < a.maxHp)
+    const enemyBaseX = u.side === 'player' ? FIELD_WIDTH - 40 : 40
+    const attackDir = u.side === 'player' ? 1 : -1
+    const stopX = enemyBaseX - attackDir * (def.range + BASE_STOP_BUFFER)
+    const atBase = u.side === 'player' ? u.x >= stopX : u.x <= stopX
+    if (u.side === 'player') u.x = Math.min(u.x, stopX)
+    else u.x = Math.max(u.x, stopX)
+
+    if (u.kind === 'hero') u.heroCd -= dt
+    if (u.kind === 'hero' && u.heroCd <= 0) {
+      if (u.class === 'warrior') {
+        allies.forEach((a) => { if (Math.abs(a.x - u.x) < 120) a.buff = { until: s.t + 5, dmg: 1.3, def: 0.85 } })
+        u.heroCd = def.cooldown
+        s.impacts.push({ id: uid(), x: u.x, y: 238, life: 0.4, type: 'heal' })
+      } else if (u.class === 'ranger') {
+        enemies.slice(0, 3).forEach((e) => { e.hp -= 18; s.projectiles.push({ id: uid(), fromX: u.x, toX: e.x, y: 244, life: 0.2, maxLife: 0.2 }) })
+        u.heroCd = def.cooldown
+      } else if (u.class === 'paladin') {
+        allies.forEach((a) => { if (Math.abs(a.x - u.x) < 130) a.hp = Math.min(a.maxHp, a.hp + 22) })
+        enemies.forEach((e) => { if (Math.abs(e.x - u.x) < 130) e.hp -= 10 })
+        u.heroCd = def.cooldown
+      }
+    }
 
     if (u.type === 'priest' && ally && u.cd <= 0) {
       const heal = Math.abs(def.dmg)
-      ally.hp = Math.min(unitDefs[ally.type].hp, ally.hp + heal)
+      ally.hp = Math.min(ally.maxHp, ally.hp + heal)
       u.cd = def.rate
       s.floats.push({ id: uid(), x: ally.x, y: 240, life: 0.7, txt: `${Math.round(heal)}`, heal: true })
       u.anim = 'cast'
@@ -225,8 +275,9 @@ function stepBattle(state, campaign, territory) {
       s.impacts.push({ id: uid(), x: ally.x, y: 250, life: 0.3, type: 'heal' })
     } else if (near && u.cd <= 0) {
       let dmg = def.dmg
+      if (u.buff?.until > s.t) dmg *= u.buff.dmg
       if (u.type === 'spearman' && near.type === 'knight') dmg *= 1.4
-      near.hp -= Math.max(1, dmg)
+      near.hp -= Math.max(1, dmg) * (near.buff?.until > s.t ? near.buff.def : 1)
       u.cd = def.rate
       u.anim = u.type === 'ram' ? 'slam' : (u.type === 'archer' ? 'shoot' : 'strike')
       u.animUntil = s.t + 0.22
@@ -234,13 +285,13 @@ function stepBattle(state, campaign, territory) {
       s.floats.push({ id: uid(), x: near.x, y: 260, life: 0.7, txt: `${Math.round(Math.abs(dmg))}`, heal: false })
       s.impacts.push({ id: uid(), x: near.x, y: 260, life: 0.18, type: 'hit' })
       if (u.type === 'archer') s.projectiles.push({ id: uid(), fromX: u.x, toX: near.x, y: 244, life: 0.18, maxLife: 0.18 })
-    } else if (!near) {
+    } else if (!near && !atBase) {
       u.x += (u.side === 'player' ? 1 : -1) * def.speed * dt
     }
 
-    const enemyBaseX = u.side === 'player' ? FIELD_WIDTH - 40 : 40
-    if (Math.abs(u.x - enemyBaseX) < def.range && u.cd <= 0) {
+    if (atBase && u.cd <= 0 && !near) {
       let bd = Math.max(4, def.dmg * (def.baseBonus || 1))
+      if (u.kind === 'hero' && u.class === 'engineer') bd *= 1.5
       if (u.side === 'player') s.enemyBase -= bd
       else s.playerBase -= bd
       u.cd = def.rate
@@ -263,10 +314,12 @@ function stepBattle(state, campaign, territory) {
 }
 
 function BattleView({ battle, territory, onSpawn, onEnd }) {
+  const playerHero = battle.units.find((u) => u.side === 'player' && u.kind === 'hero')
   const unitList = useMemo(() => Object.entries(unitDefs), [])
   return <div>
     <div className="hud"><p>Gold: {Math.floor(battle.gold)}</p><p>Your Base: {Math.max(0, Math.floor(battle.playerBase))}</p><p>Enemy Base: {Math.max(0, Math.floor(battle.enemyBase))}</p></div>
     <p className="taunt">{battle.commanderLine}</p>
+    {playerHero && <div className="hero-panel"><b>{heroDefs[playerHero.class].name}</b> • {heroDefs[playerHero.class].ability} • HP {Math.round(playerHero.hp)}/{playerHero.maxHp} • Cooldown {Math.max(0, playerHero.heroCd).toFixed(1)}s</div>}
     <div className="battlefield">
       <div className="base player-base"><div style={{width:`${(battle.playerBase/BASE_HP)*100}%`}}/></div>
       <div className="base enemy-base"><div style={{width:`${(battle.enemyBase/(BASE_HP+territory.difficulty*100))*100}%`}}/></div>
@@ -286,8 +339,8 @@ function BattleView({ battle, territory, onSpawn, onEnd }) {
 }
 
 function UnitSprite({ u, battleTime = 0, dead = false }) {
-  const def = unitDefs[u.type]
-  return <div className={`unit ${u.side} ${u.type} anim-${u.anim} ${u.hitUntil > battleTime ? 'hit' : ''} ${dead ? 'dead' : ''}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, ['--unit-color']: def.color }} title={`${def.name} ${Math.floor(Math.max(0, u.hp))}hp`}>
+  const def = u.kind === 'hero' ? heroDefs[u.class] : unitDefs[u.type]
+  return <div className={`unit ${u.side} ${u.type} ${u.kind === 'hero' ? 'hero' : ''} anim-${u.anim} ${u.hitUntil > battleTime ? 'hit' : ''} ${dead ? 'dead' : ''}`} style={{ left: `${(u.x / FIELD_WIDTH) * 100}%`, ['--unit-color']: def.color }} title={`${def.name} ${Math.floor(Math.max(0, u.hp))}hp`}>
     <span className="shadow" />
     <span className="cape" />
     <span className="body" />

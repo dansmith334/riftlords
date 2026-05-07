@@ -2,6 +2,8 @@
 body { margin: 0; background: radial-gradient(1300px 620px at 50% -160px, #37263e 0%, #15141f 46%, #080a10 100%); color: #e8e8ef; }
 .app { padding: 16px; max-width: 1200px; margin: auto; }
 .map .territory-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
+.hero-select { margin: 10px 0 14px; padding:10px; border:1px solid #4d4963; border-radius:10px; background:#101523; }
+.hero-select > div { display:flex; gap:8px; }
 .card { text-align:left; border:1px solid #4d4963; background:linear-gradient(180deg, #221f30 0%, #13141f 100%); color:#eee; padding:10px; border-radius:10px; box-shadow: inset 0 1px 0 #ffffff10, 0 10px 20px #00000026; }
 .card.conquered { outline:2px solid #358960; }
 .hud { display:flex; gap: 20px; font-weight: 700; background:#090d15df; border:1px solid #5b506a; border-radius:10px; padding:8px 10px; }
@@ -65,6 +67,7 @@ body { margin: 0; background: radial-gradient(1300px 620px at 50% -160px, #37263
 .unit.hit { filter: brightness(1.8) saturate(1.2) drop-shadow(0 0 7px #ff9f6ea8); }
 .unit.dead { opacity:0.45; transform:translateX(-50%) translateY(7px) scale(0.86); filter: grayscale(1) brightness(.65); }
 .unit.enemy.dead { transform:translateX(-50%) translateY(7px) scale(0.86) scaleX(-1); }
+.unit.hero { outline:1px solid #ffe59f77; border-radius:50%; filter: drop-shadow(0 0 8px #ffe59f66) drop-shadow(0 5px 5px #000b); }
 
 .anim-strike { animation: strike 170ms cubic-bezier(.2,.84,.2,1); }
 .anim-shoot { animation: shoot 180ms cubic-bezier(.16,.75,.2,1); }
@@ -93,6 +96,7 @@ body { margin: 0; background: radial-gradient(1300px 620px at 50% -160px, #37263
 .enemy-base { right: 10px; }
 .base::before { content:''; position:absolute; width:44px; height:18px; top:-12px; left:2px; background:#4a4454; border:2px solid #262531; }
 .base > div { height:9px; background:linear-gradient(90deg,#68ffb1,#3cc27c); box-shadow:0 0 8px #46d690; }
+.hero-panel { margin:8px 0; padding:8px 10px; border:1px solid #7f6c3f; border-radius:8px; background:#2c2616; color:#f4e7b5; }
 .float { position:absolute; color:#ff8989; font-weight:700; transform:translateX(-50%); text-shadow:0 1px 3px #000; }
 .float.heal { color:#85f7c1; }
 .spawn-grid { margin-top: 12px; display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
