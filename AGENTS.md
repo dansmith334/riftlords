@@ -39,6 +39,15 @@ When environment allows:
   - `npm run dev` (smoke test start)
 - If commands cannot run (network/dependency/environment constraints), clearly report limitations.
 
+
+## Balance change protocol
+Before touching unit stats, spawn logic, economy, AI composition, or other balance-sensitive systems:
+1. Run `npm run eval:balance` and capture baseline numbers.
+2. Make the smallest reasonable balance change.
+3. Run `npm run eval:balance` again.
+4. Report before/after metrics (win rates, duration, spawn counts, first enemy spawn, crash/softlock counts).
+5. Keep balance changes only if results are measurably fairer or more fun; otherwise revert and try a different small change.
+
 ## Coding guidance
 - Prefer predictable, data-driven structures for units, territories, commanders, and modifiers.
 - Keep deterministic logic isolated so it can be unit tested later.

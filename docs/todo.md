@@ -1,6 +1,7 @@
 # TODO
 
 ## Immediate priorities
+- [x] Add balance evaluation harness (`npm run eval:balance`) for autoplay simulations and target checks.
 - [ ] Split `src/App.jsx` into modules (`campaign`, `battle`, `ui`) while preserving behavior.
 - [ ] Apply territory modifiers as real gameplay effects.
 - [ ] Wire upgrade rewards to visible strategic progression.
